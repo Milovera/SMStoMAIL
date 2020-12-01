@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">SMStoMAIL</string>
+    <string name="permissions_denied_text">You must allow application to read SMS</string>
+    <string name="permissions_allowed_text">Permissions gained</string>
+    <string name="permissions_give_button_text">Give permissions</string>
+    <string name="settings_show_button_text">Show settings</string>
+    <string name="settings_hide_button_text">Hide settings</string>
+    <string name="sender_login_text">Login:</string>
+    <string name="sender_passw_text">Password:</string>
+    <string name="sender_section_text">Sender email</string>
+    <string name="other_section_text">Other</string>
+    <string name="recipients_text">Recipients comma separated:</string>
+    <string name=""
+</resources>
