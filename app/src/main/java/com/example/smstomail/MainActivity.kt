@@ -23,6 +23,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var permissionTextView: TextView
     private lateinit var permissionButton: Button
+    private lateinit var receiverStatusTextView: TextView
+    private lateinit var receiverSwitchButton: Button
     private lateinit var settingsButton: Button
     private lateinit var settingsLayout: LinearLayout
     private lateinit var loginEditText: EditText
@@ -32,6 +34,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recipientsEditText: EditText
     private lateinit var applySettingsButton: Button
     private lateinit var testButton: Button
+
+    private var permissionsIsGained = false
+    private var isReceiverEnabled = false
 
     val isSettingsFieldsFilled: Boolean
         get() {
@@ -61,6 +66,8 @@ class MainActivity : AppCompatActivity() {
 
         permissionTextView = findViewById(R.id.permissions_text)
         permissionButton = findViewById(R.id.permissions_button)
+        receiverStatusTextView = findViewById(R.id.receiver_status_text)
+        receiverSwitchButton = findViewById(R.id.receiver_switch_button)
         settingsButton = findViewById(R.id.settings_button)
         settingsLayout = findViewById(R.id.settings_layout)
         loginEditText = findViewById(R.id.login_edit)
@@ -78,6 +85,7 @@ class MainActivity : AppCompatActivity() {
         smtpSSLEditText.addTextChangedListener(settingsEditorChecker)
 
         permissionButton.setOnClickListener { requestPermissions(arrayOf(Manifest.permission.RECEIVE_SMS), PERMISSION_REQUEST_CODE) }
+        receiverSwitchButton.setOnClickListener { switchReceiverStatus() }
         applySettingsButton.setOnClickListener { saveSettings() }
         settingsButton.setOnClickListener { showSettings() }
         testButton.setOnClickListener { testSettings() }
@@ -88,18 +96,42 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         checkPermissionsAndShowStatus()
+        checkReceiverStatusAndShowStatus()
     }
 
     private fun checkPermissionsAndShowStatus() {
-        if(ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED) {
+        permissionsIsGained = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED
+        if(permissionsIsGained) {
             permissionButton.visibility = View.GONE
-            permissionTextView.text = getText(R.string.permissions_allowed_text)
-            permissionTextView.setTextColor(getColor(R.color.green))
+            permissionTextView.visibility = View.GONE
         } else {
+            permissionTextView.visibility = View.VISIBLE
             permissionButton.visibility = View.VISIBLE
-            permissionTextView.text = getText(R.string.permissions_denied_text)
-            permissionTextView.setTextColor(getColor(R.color.red))
         }
+    }
+
+    private fun checkReceiverStatusAndShowStatus() {
+        if(permissionsIsGained) {
+            receiverStatusTextView.visibility = View.VISIBLE
+            receiverSwitchButton.visibility = View.VISIBLE
+
+            try {
+                val sharedPreferences = getPreferences(Context.MODE_PRIVATE)
+                isReceiverEnabled = sharedPreferences.getBoolean(PreferencesKeys.RECEIVER_ENABLED, false)
+            } catch (ex: Resources.NotFoundException) {}
+
+            if(isReceiverEnabled) {
+                receiverStatusTextView.setText(R.string.receiver_enabled_text)
+                receiverSwitchButton.setText(R.string.disable_text)
+            } else {
+                receiverStatusTextView.setText(R.string.receiver_disabled_text)
+                receiverSwitchButton.setText(R.string.enable_text)
+            }
+        } else {
+            receiverStatusTextView.visibility = View.GONE
+            receiverSwitchButton.visibility = View.GONE
+        }
+
     }
 
     private fun loadSavedPreferences() {
@@ -133,8 +165,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun saveSettings() {
-        val sharedPreferences = getPreferences(Context.MODE_PRIVATE)
-        with(sharedPreferences.edit()) {
+        with(getPreferences(Context.MODE_PRIVATE).edit()) {
             putString(PreferencesKeys.LOGIN_KEY, loginEditText.text.toString())
             putString(PreferencesKeys.PASSW_KEY, passwEditText.text.toString())
             putString(PreferencesKeys.SERVER_KEY, smtpServerEditText.text.toString())
@@ -142,6 +173,15 @@ class MainActivity : AppCompatActivity() {
             putString(PreferencesKeys.RECIPIENTS, recipientsEditText.text.toString())
             apply()
         }
+    }
+
+    private fun switchReceiverStatus() {
+        isReceiverEnabled = !isReceiverEnabled
+        with(getPreferences(Context.MODE_PRIVATE).edit()) {
+            putBoolean(PreferencesKeys.RECEIVER_ENABLED, isReceiverEnabled)
+            apply()
+        }
+        checkReceiverStatusAndShowStatus()
     }
 
     private fun testSettings() {

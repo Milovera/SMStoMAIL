@@ -23,6 +23,19 @@
         android:layout_height="wrap_content"
         android:text="@string/permissions_give_button_text" />
 
+    <TextView
+        android:id="@+id/receiver_status_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="9pt"
+        android:text="@string/receiver_enabled_text"/>
+
+    <Button
+        android:id="@+id/receiver_switch_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/disable_text"/>
+
     <Button
         android:id="@+id/settings_button"
         android:layout_width="wrap_content"

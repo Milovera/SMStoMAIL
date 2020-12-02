@@ -6,4 +6,5 @@ object PreferencesKeys {
     const val SERVER_KEY = "SERVER"
     const val SSL_PORT = "SSL_PORT"
     const val RECIPIENTS = "RECIPIENTS"
+    const val RECEIVER_ENABLED = "RECEIVER_ENABLED"
 }
