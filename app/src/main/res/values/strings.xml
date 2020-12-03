@@ -9,8 +9,7 @@
     <string name="sender_section_text">Sender email</string>
     <string name="other_section_text">Other</string>
     <string name="recipients_text">Recipients comma separated:</string>
-    <string name="apply_settings_button_text">Apply</string>
-    <string name="test_settings_button_text">Test mail sending</string>
+    <string name="apply_settings_button_text">Apply&amp;Test</string>
     <string name="smtp_server_text">SMTP Server:</string>
     <string name="ssl_port_text">SSL port:</string>
     <string name="preference_file_key">2395fff88356</string>
@@ -18,4 +17,8 @@
     <string name="receiver_disabled_text">SMS receiver disabled</string>
     <string name="enable_text">Enable</string>
     <string name="disable_text">Disable</string>
+    <string name="toast_test_email">Check your mail box</string>
+    <string name="error_while_mail_sending">Make sure it is correct email address: %1$s</string>
+    <string name="error_while_mail_sending2">Something gone wrong while send mail to %1$s</string>
+    <string name="error_while_mail_sending3">Authentication failed. Please check login\\password</string>
 </resources>

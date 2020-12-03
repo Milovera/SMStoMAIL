@@ -27,14 +27,14 @@
         android:id="@+id/receiver_status_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="9pt"
-        android:text="@string/receiver_enabled_text"/>
+        android:text="@string/receiver_enabled_text"
+        android:textSize="9pt" />
 
     <Button
         android:id="@+id/receiver_switch_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/disable_text"/>
+        android:text="@string/disable_text" />
 
     <Button
         android:id="@+id/settings_button"
@@ -143,7 +143,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:inputType="numberSigned"
-                android:text="465"
                 android:textAlignment="center" />
         </LinearLayout>
 
@@ -187,25 +186,11 @@
             android:layout_height="wrap_content"
             android:inputType="text" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/apply_settings_button"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/test_settings_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="15dp"
-                android:text="@string/test_settings_button_text" />
-
-            <Button
-                android:id="@+id/apply_settings_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/apply_settings_button_text" />
-        </LinearLayout>
+            android:text="@string/apply_settings_button_text" />
     </LinearLayout>
 
 </LinearLayout>

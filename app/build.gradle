@@ -40,4 +40,5 @@ dependencies {
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'com.sun.mail:android-activation:1.6.5'
     implementation 'com.sun.mail:android-mail:1.6.5'
+    implementation 'androidx.work:work-runtime-ktx:2.4.0'
 }

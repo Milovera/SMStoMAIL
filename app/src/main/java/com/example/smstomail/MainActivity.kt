@@ -4,16 +4,13 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.widget.Button
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.view.View
+import android.widget.*
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -33,7 +30,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var smtpSSLEditText: EditText
     private lateinit var recipientsEditText: EditText
     private lateinit var applySettingsButton: Button
-    private lateinit var testButton: Button
 
     private var permissionsIsGained = false
     private var isReceiverEnabled = false
@@ -53,10 +49,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    isSettingsFieldsFilled.let { value ->
-                        applySettingsButton.isEnabled = value
-                        testButton.isEnabled = value
-                    }
+                    applySettingsButton.isEnabled = isSettingsFieldsFilled
                 }
             }
 
@@ -76,7 +69,6 @@ class MainActivity : AppCompatActivity() {
         smtpSSLEditText = findViewById(R.id.smtp_port_edit)
         recipientsEditText = findViewById(R.id.recipients_edit)
         applySettingsButton = findViewById(R.id.apply_settings_button)
-        testButton = findViewById(R.id.test_settings_button)
 
         loginEditText.addTextChangedListener(settingsEditorChecker)
         passwEditText.addTextChangedListener(settingsEditorChecker)
@@ -88,7 +80,6 @@ class MainActivity : AppCompatActivity() {
         receiverSwitchButton.setOnClickListener { switchReceiverStatus() }
         applySettingsButton.setOnClickListener { saveSettings() }
         settingsButton.setOnClickListener { showSettings() }
-        testButton.setOnClickListener { testSettings() }
 
         loadSavedPreferences()
     }
@@ -116,8 +107,8 @@ class MainActivity : AppCompatActivity() {
             receiverSwitchButton.visibility = View.VISIBLE
 
             try {
-                val sharedPreferences = getPreferences(Context.MODE_PRIVATE)
-                isReceiverEnabled = sharedPreferences.getBoolean(PreferencesKeys.RECEIVER_ENABLED, false)
+                val sharedPreferences = getSharedPreferences(PreferencesKeys.PREFERENCES_KEY, Context.MODE_PRIVATE)
+                isReceiverEnabled = sharedPreferences.getBoolean(PreferencesKeys.RECEIVER_ENABLED_KEY, false)
             } catch (ex: Resources.NotFoundException) {}
 
             if(isReceiverEnabled) {
@@ -135,13 +126,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadSavedPreferences() {
-        val sharedPreferences = getPreferences(Context.MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences(PreferencesKeys.PREFERENCES_KEY, Context.MODE_PRIVATE)
         try {
             loginEditText.setText(sharedPreferences.getString(PreferencesKeys.LOGIN_KEY, ""))
             passwEditText.setText(sharedPreferences.getString(PreferencesKeys.PASSW_KEY, "")!!)
             smtpServerEditText.setText(sharedPreferences.getString(PreferencesKeys.SERVER_KEY, "")!!)
-            smtpSSLEditText.setText(sharedPreferences.getString(PreferencesKeys.SSL_PORT, "0"))
-            recipientsEditText.setText(sharedPreferences.getString(PreferencesKeys.RECIPIENTS, "")!!)
+            smtpSSLEditText.setText(sharedPreferences.getString(PreferencesKeys.SSL_PORT_KEY, "0"))
+            recipientsEditText.setText(sharedPreferences.getString(PreferencesKeys.RECIPIENTS_KEY, "")!!)
         } catch (ex: Resources.NotFoundException) {
             return
         }
@@ -150,11 +141,7 @@ class MainActivity : AppCompatActivity() {
     private fun showSettings() {
         settingsButton.text = getText(R.string.settings_hide_button_text)
         settingsLayout.visibility = View.VISIBLE
-        isSettingsFieldsFilled.let { value ->
-            applySettingsButton.isEnabled = value
-            testButton.isEnabled = value
-        }
-
+        applySettingsButton.isEnabled = isSettingsFieldsFilled
         settingsButton.setOnClickListener { hideSettings() }
     }
 
@@ -165,27 +152,29 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun saveSettings() {
-        with(getPreferences(Context.MODE_PRIVATE).edit()) {
+        with(getSharedPreferences(PreferencesKeys.PREFERENCES_KEY, Context.MODE_PRIVATE).edit()) {
             putString(PreferencesKeys.LOGIN_KEY, loginEditText.text.toString())
             putString(PreferencesKeys.PASSW_KEY, passwEditText.text.toString())
             putString(PreferencesKeys.SERVER_KEY, smtpServerEditText.text.toString())
-            putString(PreferencesKeys.SSL_PORT, smtpSSLEditText.text.toString())
-            putString(PreferencesKeys.RECIPIENTS, recipientsEditText.text.toString())
+            putString(PreferencesKeys.SSL_PORT_KEY, smtpSSLEditText.text.toString())
+            putString(PreferencesKeys.RECIPIENTS_KEY, recipientsEditText.text.toString())
             apply()
         }
+        testSettings()
     }
 
     private fun switchReceiverStatus() {
         isReceiverEnabled = !isReceiverEnabled
-        with(getPreferences(Context.MODE_PRIVATE).edit()) {
-            putBoolean(PreferencesKeys.RECEIVER_ENABLED, isReceiverEnabled)
+        with(getSharedPreferences(PreferencesKeys.PREFERENCES_KEY, Context.MODE_PRIVATE).edit()) {
+            putBoolean(PreferencesKeys.RECEIVER_ENABLED_KEY, isReceiverEnabled)
             apply()
         }
         checkReceiverStatusAndShowStatus()
     }
 
     private fun testSettings() {
-
+        MailSendWork.scheduleWork(applicationContext, "TEST TITLE", "TEST BODY")
+        Toast.makeText(applicationContext, R.string.toast_test_email, Toast.LENGTH_SHORT).show()
     }
 
     override fun onRequestPermissionsResult(
@@ -194,6 +183,7 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         checkPermissionsAndShowStatus()
+        checkReceiverStatusAndShowStatus()
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 }
