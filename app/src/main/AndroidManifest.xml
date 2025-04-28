@@ -1,31 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.smstomail">
-
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="true" />
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS"/>
-
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <application
+        android:name=".SMStoMailApplication"
         android:allowBackup="false"
-        android:icon="@mipmap/ic_launcher"
+        android:fullBackupContent="false"
+        tools:targetApi="34"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:icon="@mipmap/ic_launcher_foreground"
+        android:roundIcon="@mipmap/ic_launcher_foreground"
         android:label="@string/app_name"
-        android:supportsRtl="false"
-        android:theme="@style/Theme.SMStoMAIL">
-        <activity android:name=".MainActivity">
+        android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
+        android:supportsRtl="false">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <receiver
-            android:name=".SMSReceiver"
+            android:name="com.example.smstomail.domain.broadcastreceivers.SMSReceiver"
             android:exported="true"
             android:permission="android.permission.BROADCAST_SMS">
-
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
             </intent-filter>
         </receiver>
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="remove">
+        </provider>
     </application>
 </manifest>

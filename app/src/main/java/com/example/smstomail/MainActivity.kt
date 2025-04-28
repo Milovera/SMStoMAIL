@@ -1,189 +1,85 @@
 package com.example.smstomail
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import androidx.core.content.ContextCompat
 import android.Manifest
-import android.content.Context
-import android.content.pm.PackageManager
-import android.content.res.Resources
-import android.view.View
-import android.widget.*
+import android.content.Intent
+import android.os.Build
+import android.os.Bundle
+import android.provider.Settings
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.ViewModelProvider
+import androidx.compose.runtime.getValue
+import com.example.smstomail.presentation.models.AppViewModelFactory
+import com.example.smstomail.presentation.models.PermissionsViewModel
+import com.example.smstomail.presentation.ui.AppScreen
+import com.example.smstomail.presentation.ui.theme.AppTheme
+import androidx.core.net.toUri
 
-class MainActivity : AppCompatActivity() {
-    companion object {
-        const val LOG_TAG = "MainActivity"
-        const val PERMISSION_REQUEST_CODE = 1245
+class MainActivity: ComponentActivity() {
+    private lateinit var permissionsViewModel: PermissionsViewModel
+
+    private val permissionRequestLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+        permissionsViewModel.checkPermissions()
     }
-
-    private lateinit var permissionTextView: TextView
-    private lateinit var permissionButton: Button
-    private lateinit var receiverStatusTextView: TextView
-    private lateinit var receiverSwitchButton: Button
-    private lateinit var settingsButton: Button
-    private lateinit var settingsLayout: LinearLayout
-    private lateinit var loginEditText: EditText
-    private lateinit var passwEditText: EditText
-    private lateinit var smtpServerEditText: EditText
-    private lateinit var smtpSSLEditText: EditText
-    private lateinit var recipientsEditText: EditText
-    private lateinit var applySettingsButton: Button
-
-    private var permissionsIsGained = false
-    private var isReceiverEnabled = false
-
-    val isSettingsFieldsFilled: Boolean
-        get() {
-            return loginEditText.text.isNotEmpty() && passwEditText.text.isNotEmpty() && recipientsEditText.text.isNotEmpty() &&
-                    smtpServerEditText.text.isNotEmpty() && smtpSSLEditText.text.isNotEmpty()
-        }
-
-    private val settingsEditorChecker: TextWatcher =
-            object : TextWatcher {
-                override fun afterTextChanged(s: Editable?) {
-                }
-
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    applySettingsButton.isEnabled = isSettingsFieldsFilled
-                }
-            }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        permissionTextView = findViewById(R.id.permissions_text)
-        permissionButton = findViewById(R.id.permissions_button)
-        receiverStatusTextView = findViewById(R.id.receiver_status_text)
-        receiverSwitchButton = findViewById(R.id.receiver_switch_button)
-        settingsButton = findViewById(R.id.settings_button)
-        settingsLayout = findViewById(R.id.settings_layout)
-        loginEditText = findViewById(R.id.login_edit)
-        passwEditText = findViewById(R.id.passw_edit)
-        smtpServerEditText = findViewById(R.id.smtp_server_edit)
-        smtpSSLEditText = findViewById(R.id.smtp_port_edit)
-        recipientsEditText = findViewById(R.id.recipients_edit)
-        applySettingsButton = findViewById(R.id.apply_settings_button)
+        permissionsViewModel = ViewModelProvider(this, AppViewModelFactory.Factory).get(PermissionsViewModel::class.java)
 
-        loginEditText.addTextChangedListener(settingsEditorChecker)
-        passwEditText.addTextChangedListener(settingsEditorChecker)
-        recipientsEditText.addTextChangedListener(settingsEditorChecker)
-        smtpServerEditText.addTextChangedListener(settingsEditorChecker)
-        smtpSSLEditText.addTextChangedListener(settingsEditorChecker)
+        setContent {
+            val permissionsUiState by permissionsViewModel.uiState.collectAsState()
 
-        permissionButton.setOnClickListener { requestPermissions(arrayOf(Manifest.permission.RECEIVE_SMS), PERMISSION_REQUEST_CODE) }
-        receiverSwitchButton.setOnClickListener { switchReceiverStatus() }
-        applySettingsButton.setOnClickListener { saveSettings() }
-        settingsButton.setOnClickListener { showSettings() }
-
-        loadSavedPreferences()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        checkPermissionsAndShowStatus()
-        checkReceiverStatusAndShowStatus()
-    }
-
-    private fun checkPermissionsAndShowStatus() {
-        permissionsIsGained = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED
-        if(permissionsIsGained) {
-            permissionButton.visibility = View.GONE
-            permissionTextView.visibility = View.GONE
-        } else {
-            permissionTextView.visibility = View.VISIBLE
-            permissionButton.visibility = View.VISIBLE
-        }
-    }
-
-    private fun checkReceiverStatusAndShowStatus() {
-        if(permissionsIsGained) {
-            receiverStatusTextView.visibility = View.VISIBLE
-            receiverSwitchButton.visibility = View.VISIBLE
-
-            try {
-                val sharedPreferences = getSharedPreferences(PreferencesKeys.PREFERENCES_KEY, Context.MODE_PRIVATE)
-                isReceiverEnabled = sharedPreferences.getBoolean(PreferencesKeys.RECEIVER_ENABLED_KEY, false)
-            } catch (ex: Resources.NotFoundException) {}
-
-            if(isReceiverEnabled) {
-                receiverStatusTextView.setText(R.string.receiver_enabled_text)
-                receiverSwitchButton.setText(R.string.disable_text)
-            } else {
-                receiverStatusTextView.setText(R.string.receiver_disabled_text)
-                receiverSwitchButton.setText(R.string.enable_text)
+            AppTheme {
+                    AppScreen(
+                        permissionsUiState = permissionsUiState,
+                        onPermissionsRequestClicked = this::requestPermissions
+                    )
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        permissionsViewModel.checkPermissions()
+    }
+
+    private fun requestPermissions() {
+        if(!permissionsViewModel.uiState.value.isNotificationAllowed) {
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                openSystemAppSettings()
+            } else {
+                requestPostNotificationsPermissions()
+            }
+        } else if (!permissionsViewModel.uiState.value.isSMSReceiveAllowed) {
+            requestReceiveSMSPermissions()
+        }
+    }
+
+    fun openSystemAppSettings() {
+        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // настройки уведомлений приложения
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                .putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
         } else {
-            receiverStatusTextView.visibility = View.GONE
-            receiverSwitchButton.visibility = View.GONE
+            // общие настройки приложения
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                .setData("package:${packageName}".toUri())
         }
-
+        startActivity(intent)
     }
 
-    private fun loadSavedPreferences() {
-        val sharedPreferences = getSharedPreferences(PreferencesKeys.PREFERENCES_KEY, Context.MODE_PRIVATE)
-        try {
-            loginEditText.setText(sharedPreferences.getString(PreferencesKeys.LOGIN_KEY, ""))
-            passwEditText.setText(sharedPreferences.getString(PreferencesKeys.PASSW_KEY, "")!!)
-            smtpServerEditText.setText(sharedPreferences.getString(PreferencesKeys.SERVER_KEY, "")!!)
-            smtpSSLEditText.setText(sharedPreferences.getString(PreferencesKeys.SSL_PORT_KEY, "0"))
-            recipientsEditText.setText(sharedPreferences.getString(PreferencesKeys.RECIPIENTS_KEY, "")!!)
-        } catch (ex: Resources.NotFoundException) {
-            return
-        }
+    fun requestReceiveSMSPermissions() {
+        permissionRequestLauncher.launch(Manifest.permission.RECEIVE_SMS)
     }
 
-    private fun showSettings() {
-        settingsButton.text = getText(R.string.settings_hide_button_text)
-        settingsLayout.visibility = View.VISIBLE
-        applySettingsButton.isEnabled = isSettingsFieldsFilled
-        settingsButton.setOnClickListener { hideSettings() }
-    }
-
-    private fun hideSettings() {
-        settingsButton.text = getText(R.string.settings_show_button_text)
-        settingsLayout.visibility = View.GONE
-        settingsButton.setOnClickListener { showSettings() }
-    }
-
-    private fun saveSettings() {
-        with(getSharedPreferences(PreferencesKeys.PREFERENCES_KEY, Context.MODE_PRIVATE).edit()) {
-            putString(PreferencesKeys.LOGIN_KEY, loginEditText.text.toString())
-            putString(PreferencesKeys.PASSW_KEY, passwEditText.text.toString())
-            putString(PreferencesKeys.SERVER_KEY, smtpServerEditText.text.toString())
-            putString(PreferencesKeys.SSL_PORT_KEY, smtpSSLEditText.text.toString())
-            putString(PreferencesKeys.RECIPIENTS_KEY, recipientsEditText.text.toString())
-            apply()
-        }
-        testSettings()
-    }
-
-    private fun switchReceiverStatus() {
-        isReceiverEnabled = !isReceiverEnabled
-        with(getSharedPreferences(PreferencesKeys.PREFERENCES_KEY, Context.MODE_PRIVATE).edit()) {
-            putBoolean(PreferencesKeys.RECEIVER_ENABLED_KEY, isReceiverEnabled)
-            apply()
-        }
-        checkReceiverStatusAndShowStatus()
-    }
-
-    private fun testSettings() {
-        MailSendWork.scheduleWork(applicationContext, "TEST TITLE", "TEST BODY")
-        Toast.makeText(applicationContext, R.string.toast_test_email, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        checkPermissionsAndShowStatus()
-        checkReceiverStatusAndShowStatus()
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    fun requestPostNotificationsPermissions() {
+        permissionRequestLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 }
