@@ -22,7 +22,13 @@ class EncryptedPreferencesStringDataSource(
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
 
-    override fun read(key: String) = sharedPreferences.getString(key, null)
+    override fun read(key: String): String? {
+        return try {
+            sharedPreferences.getString(key, null)
+        } catch (_: ClassCastException) {
+            null
+        }
+    }
 
     override fun write(key: String, value: String) {
         sharedPreferences

@@ -42,10 +42,15 @@ class SettingsRepositoryTest {
     }
 
     @Test
-    fun repositoryReadInvalidSettings_returnNull() {
-        val key = SettingsData.Keys.entries.first().name
-        dataSource.write(key, "someValue")
+    fun repositoryReadEmptyDataSource_returnDefaultSettings() {
+        val defaultSettings = SettingsData(
+            login = "",
+            password = "",
+            host = "",
+            sslPort = null,
+            isReceiverEnabled = false
+        )
 
-        assert(repository.read() == null)
+        assert(repository.read() == defaultSettings)
     }
 }
