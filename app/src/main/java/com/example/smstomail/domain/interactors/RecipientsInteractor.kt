@@ -1,9 +1,13 @@
 package com.example.smstomail.domain.interactors
 
+import android.util.Log
 import com.example.smstomail.data.entity.Recipient
 import com.example.smstomail.data.repository.IRecipientsRepository
+import javax.inject.Inject
 
-class RecipientsInteractor(recipientsRepository: IRecipientsRepository): AbstractItemListBufferInteractor<Recipient>(recipientsRepository) {
+class RecipientsInteractor @Inject constructor(
+    recipientsRepository: IRecipientsRepository
+): AbstractItemListBufferInteractor<Recipient>(recipientsRepository) {
     override fun createNewItem(nextItemId: Int) = Recipient(nextItemId)
     override fun getItemId(item: Recipient) = item.id
     override fun isValidItems(): Boolean {
@@ -19,5 +23,9 @@ class RecipientsInteractor(recipientsRepository: IRecipientsRepository): Abstrac
         if(items.isEmpty()) {
             createNewItem()
         }
+    }
+
+    init {
+        Log.v("init", "RecipientsInteractor")
     }
 }

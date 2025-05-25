@@ -11,26 +11,29 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.collectAsState
-import androidx.lifecycle.ViewModelProvider
 import androidx.compose.runtime.getValue
-import com.example.smstomail.presentation.models.AppViewModelFactory
+import androidx.core.net.toUri
+import com.example.smstomail.presentation.models.FiltersViewModel
 import com.example.smstomail.presentation.models.PermissionsViewModel
+import com.example.smstomail.presentation.models.SettingsViewModel
 import com.example.smstomail.presentation.ui.AppScreen
 import com.example.smstomail.presentation.ui.theme.AppTheme
-import androidx.core.net.toUri
+import javax.inject.Inject
 
 class MainActivity: ComponentActivity() {
-    private lateinit var permissionsViewModel: PermissionsViewModel
+    @Inject lateinit var permissionsViewModel: PermissionsViewModel
+    @Inject lateinit var filtersViewModel: FiltersViewModel
+    @Inject lateinit var settingsViewModel: SettingsViewModel
 
     private val permissionRequestLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-        permissionsViewModel.checkPermissions()
+        permissionsViewModel.checkPermissions(applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        permissionsViewModel = ViewModelProvider(this, AppViewModelFactory.Factory).get(PermissionsViewModel::class.java)
+        (application as SMStoMailApplication).appComponent.inject(this)
 
         setContent {
             val permissionsUiState by permissionsViewModel.uiState.collectAsState()
@@ -38,7 +41,9 @@ class MainActivity: ComponentActivity() {
             AppTheme {
                     AppScreen(
                         permissionsUiState = permissionsUiState,
-                        onPermissionsRequestClicked = this::requestPermissions
+                        onPermissionsRequestClicked = this::requestPermissions,
+                        settingsViewModel = settingsViewModel,
+                        filtersViewModel = filtersViewModel
                     )
             }
         }
@@ -46,7 +51,7 @@ class MainActivity: ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        permissionsViewModel.checkPermissions()
+        permissionsViewModel.checkPermissions(applicationContext)
     }
 
     private fun requestPermissions() {

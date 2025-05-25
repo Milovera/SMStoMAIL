@@ -6,38 +6,45 @@ import android.content.Intent
 import android.provider.Telephony.Sms.Intents.getMessagesFromIntent
 import android.util.Log
 import androidx.work.WorkManager
-import com.example.smstomail.data.database.dao.AppDatabase
-import com.example.smstomail.data.datasource.EncryptedPreferencesStringDataSource
-import com.example.smstomail.domain.workers.MailSenderWorker
 import com.example.smstomail.data.entity.Message
-import com.example.smstomail.data.repository.FiltersRepository
-import com.example.smstomail.data.repository.RecipientsRepository
-import com.example.smstomail.data.repository.SettingsRepository
+import com.example.smstomail.data.repository.IFiltersRepository
+import com.example.smstomail.data.repository.IRecipientsRepository
+import com.example.smstomail.data.repository.ISettingsRepository
+import com.example.smstomail.di.DaggerReceiverComponent
 import com.example.smstomail.domain.service.FilterStrategy
 import com.example.smstomail.domain.service.toStrategy
+import com.example.smstomail.domain.workers.MailSenderWorker
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
 class SMSReceiver: BroadcastReceiver() {
     companion object {
         const val LOG_TAG = "SMSReceiver"
     }
 
-    private fun getFilters(context: Context): List<FilterStrategy> {
+    @Inject
+    lateinit var recipientsRepository: IRecipientsRepository
+    @Inject
+    lateinit var filtersRepository: IFiltersRepository
+    @Inject
+    lateinit var settingsRepository: ISettingsRepository
+
+    init {
+        Log.v("init", "SMSReceiver")
+    }
+
+    private fun getFilters(): List<FilterStrategy> {
         return runBlocking {
-            FiltersRepository(
-                AppDatabase.getDatabase(context).filtersDao()
-            )
+            filtersRepository
                 .getItems()
                 .map {
                     it.toStrategy()
                 }
         }
     }
-    private fun getRecipients(context: Context): List<String> {
+    private fun getRecipients(): List<String> {
         return runBlocking {
-            RecipientsRepository(
-                AppDatabase.getDatabase(context).recipientsDao()
-            )
+            recipientsRepository
                 .getItems()
                 .map {  recipient ->
                     recipient.value
@@ -49,16 +56,16 @@ class SMSReceiver: BroadcastReceiver() {
         Log.v(LOG_TAG, "onReceive with action ${intent?.action}")
 
         if (context != null && intent != null) {
-            val isReceiverEnabled = SettingsRepository(EncryptedPreferencesStringDataSource(context))
-                .read()
-                ?.isReceiverEnabled
+            DaggerReceiverComponent.factory().create(context).inject(this)
+
+            val isReceiverEnabled = settingsRepository.read()?.isReceiverEnabled
 
             if (isReceiverEnabled != true)
                 return
 
             val smsSet = getMessagesFromIntent(intent).toSet()
-            val filters = getFilters(context)
-            val recipients = getRecipients(context)
+            val filters = getFilters()
+            val recipients = getRecipients()
 
             val messagesList = smsSet
                 .map { sms ->

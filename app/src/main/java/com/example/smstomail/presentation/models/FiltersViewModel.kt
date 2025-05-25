@@ -7,6 +7,8 @@ import com.example.smstomail.data.entity.Filter
 import com.example.smstomail.data.entity.ItemSnapshot
 import com.example.smstomail.domain.interactors.FiltersInteractor
 import com.example.smstomail.presentation.ui.state.FiltersUiState
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +17,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class FiltersViewModel(
+@Singleton
+class FiltersViewModel @Inject constructor(
     private val filtersInteractor: FiltersInteractor
 ) : ViewModel() {
     companion object {
@@ -43,6 +46,7 @@ class FiltersViewModel(
 
     init {
         reset()
+        Log.v("init", "FiltersViewModel")
     }
 
     fun reset() {

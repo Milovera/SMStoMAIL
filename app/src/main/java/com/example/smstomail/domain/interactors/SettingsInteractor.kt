@@ -1,15 +1,17 @@
 package com.example.smstomail.domain.interactors
 
+import android.util.Log
 import com.example.smstomail.data.entity.ItemSnapshot
 import com.example.smstomail.data.entity.SettingsData
 import com.example.smstomail.data.repository.ISettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
 
-class SettingsInteractor(
+class SettingsInteractor @Inject constructor(
     private val settingsRepository: ISettingsRepository
-) {
+): ISettingsInteractor {
     private var savedSettings: SettingsData? = null
     var currentSettings: SettingsData? = null
         private set
@@ -20,7 +22,7 @@ class SettingsInteractor(
             isValid = false
         )
     )
-    val settingsStateFlow = settingsMutableStateFlow.asStateFlow()
+    override val settingsStateFlow = settingsMutableStateFlow.asStateFlow()
 
     private fun isValidSettings(settings: SettingsData): Boolean {
         return with(settings) {
@@ -39,14 +41,14 @@ class SettingsInteractor(
             }
         }
     }
-    suspend fun reset() {
+    override suspend fun reset() {
         currentSettings = savedSettings ?: settingsRepository.read()
             .also {settingsFromRepository ->
                 savedSettings = settingsFromRepository
             }
         emitUpdates()
     }
-    suspend fun save() {
+    override suspend fun save() {
         currentSettings?.let { settings ->
             if(isValidSettings(settings)) {
                 settingsRepository.write(settings)
@@ -55,25 +57,25 @@ class SettingsInteractor(
             }
         }
     }
-    fun updateLogin(value: String) {
+    override fun updateLogin(value: String) {
         currentSettings = currentSettings?.copy(
             login = value
         )
         emitUpdates()
     }
-    fun updatePassword(value: String) {
+    override fun updatePassword(value: String) {
         currentSettings = currentSettings?.copy(
             password = value
         )
         emitUpdates()
     }
-    fun updateHost(value: String) {
+    override fun updateHost(value: String) {
         currentSettings = currentSettings?.copy(
             host = value
         )
         emitUpdates()
     }
-    fun updatePort(value: String) {
+    override fun updatePort(value: String) {
         var newPort = value.toIntOrNull()
 
         if(newPort != null && (newPort < 1 || newPort > 65535)) {
@@ -85,12 +87,16 @@ class SettingsInteractor(
         )
         emitUpdates()
     }
-    suspend fun toggleReceiverStatus() {
+    override suspend fun toggleReceiverStatus() {
         val newReceiverStatus = currentSettings?.isReceiverEnabled == false
         currentSettings = currentSettings?.copy(
             isReceiverEnabled = newReceiverStatus
         )
         save()
         emitUpdates()
+    }
+
+    init {
+        Log.v("init", "SettingsInteractor")
     }
 }

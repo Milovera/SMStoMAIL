@@ -16,7 +16,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,7 +24,6 @@ import androidx.work.WorkManager
 import com.example.smstomail.R
 import com.example.smstomail.data.entity.Message
 import com.example.smstomail.domain.workers.MailSenderWorker
-import com.example.smstomail.presentation.models.AppViewModelFactory
 import com.example.smstomail.presentation.models.FiltersViewModel
 import com.example.smstomail.presentation.ui.state.PermissionsUiState
 import kotlinx.coroutines.cancel
@@ -41,8 +39,8 @@ enum class AppScreenTypes {
 @Composable
 fun AppScreen(
     permissionsUiState: PermissionsUiState,
-    settingsViewModel: SettingsViewModel = viewModel(factory = AppViewModelFactory.Factory),
-    filtersViewModel: FiltersViewModel = viewModel(factory = AppViewModelFactory.Factory),
+    settingsViewModel: SettingsViewModel,
+    filtersViewModel: FiltersViewModel,
     onPermissionsRequestClicked: () -> Unit = {},
     navController: NavHostController = rememberNavController()
 ) {

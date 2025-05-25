@@ -6,19 +6,22 @@ import androidx.lifecycle.viewModelScope
 import com.example.smstomail.data.entity.ItemSnapshot
 import com.example.smstomail.data.entity.Recipient
 import com.example.smstomail.domain.interactors.AbstractItemListBufferInteractor
-import com.example.smstomail.domain.interactors.SettingsInteractor
+import com.example.smstomail.domain.interactors.ISettingsInteractor
 import com.example.smstomail.presentation.ui.state.SettingsUiState
 import com.example.smstomail.presentation.ui.state.SettingsUiStateData
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Singleton
 import kotlin.collections.List
 
-class SettingsViewModel(
-    private val settingsInteractor: SettingsInteractor,
+@Singleton
+class SettingsViewModel @Inject constructor(
+    private val settingsInteractor: ISettingsInteractor,
     private val recipientsInteractor: AbstractItemListBufferInteractor<Recipient>
 ) : ViewModel() {
     companion object {
@@ -49,6 +52,7 @@ class SettingsViewModel(
 
     init {
         reset()
+        Log.v("init", "SettingsViewModel")
     }
 
     private fun launch(block: suspend () -> Unit) {

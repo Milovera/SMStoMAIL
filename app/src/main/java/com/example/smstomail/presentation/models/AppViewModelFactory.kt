@@ -1,31 +1,35 @@
 package com.example.smstomail.presentation.models
 
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.smstomail.SMStoMailApplication
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.collections.iterator
 
-object AppViewModelFactory {
-    val Factory = viewModelFactory {
-        initializer {
-            val container = myApplication().container
-            SettingsViewModel(
-                settingsInteractor = container.settingsInteractor,
-                recipientsInteractor = container.recipientsInteractor
-            )
+class AppViewModelFactory @Inject constructor(
+    private val viewModelsCreators: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>
+): ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        var creator = viewModelsCreators[modelClass]
+
+        if(creator == null) {
+            for((key, value) in viewModelsCreators) {
+                if(modelClass.isAssignableFrom(key)) {
+                    creator = value
+                    break
+                }
+            }
         }
-        initializer {
-            PermissionsViewModel(
-                application = myApplication()
-            )
+
+        if(creator == null) {
+            throw IllegalArgumentException("Unknown model class: $modelClass")
         }
-        initializer {
-            FiltersViewModel(
-                filtersInteractor = myApplication().container.filtersInteractor
-            )
+
+        return try {
+            @Suppress("UNCHECKED_CAST")
+            creator.get() as T
+        } catch (e: Exception) {
+            throw RuntimeException(e)
         }
     }
 }
-
-fun CreationExtras.myApplication(): SMStoMailApplication = (this[APPLICATION_KEY] as SMStoMailApplication)
