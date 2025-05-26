@@ -1,4 +1,4 @@
-package com.example.smstomail.di
+package com.example.smstomail.di.modules
 
 import com.example.smstomail.domain.service.IMessageSender
 import com.example.smstomail.domain.service.MailSender

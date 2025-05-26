@@ -10,7 +10,6 @@ import androidx.core.app.NotificationCompat
 @RequiresApi(Build.VERSION_CODES.O)
 class NotificationSender(context: Context): AbstractNotificationSender(context) {
     companion object {
-        const val NOTIFICATION_CHANNEL_ID = "435"
         fun createNotificationChannel(context: Context, channelName: String, channelDescription: String) {
             val channel = NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,

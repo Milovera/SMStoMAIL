@@ -4,9 +4,8 @@ import android.app.Application
 import android.util.Log
 import androidx.work.Configuration
 import androidx.work.WorkManager
-import com.example.smstomail.di.AppComponent
-import com.example.smstomail.di.DaggerAppComponent
-import com.example.smstomail.domain.workers.AppWorkerFactory
+import com.example.smstomail.di.components.AppComponent
+import com.example.smstomail.di.components.DaggerAppComponent
 
 class SMStoMailApplication: Application()  {
     val appComponent: AppComponent by lazy {
@@ -20,14 +19,10 @@ class SMStoMailApplication: Application()  {
         super.onCreate()
         Log.v("init", "Application")
 
-        val workerFactory = AppWorkerFactory(
-            notificationSender = appComponent.notificationSender(),
-            mailSender = appComponent.mailSender(),
-            settingsRepository = appComponent.settings()
-        )
-
         val workManagerConfig = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
+            .setWorkerFactory(
+                appComponent.workerFactory()
+            )
             .build()
 
         WorkManager.initialize(this, workManagerConfig)

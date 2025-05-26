@@ -10,7 +10,7 @@ import com.example.smstomail.data.entity.Message
 import com.example.smstomail.data.repository.IFiltersRepository
 import com.example.smstomail.data.repository.IRecipientsRepository
 import com.example.smstomail.data.repository.ISettingsRepository
-import com.example.smstomail.di.DaggerReceiverComponent
+import com.example.smstomail.di.components.DaggerReceiverComponent
 import com.example.smstomail.domain.service.FilterStrategy
 import com.example.smstomail.domain.service.toStrategy
 import com.example.smstomail.domain.workers.MailSenderWorker

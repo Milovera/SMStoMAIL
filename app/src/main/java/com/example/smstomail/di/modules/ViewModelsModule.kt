@@ -1,4 +1,4 @@
-package com.example.smstomail.di
+package com.example.smstomail.di.modules
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

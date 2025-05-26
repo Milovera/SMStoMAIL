@@ -1,4 +1,4 @@
-package com.example.smstomail.di
+package com.example.smstomail.di.modules
 
 import android.content.Context
 import android.os.Build

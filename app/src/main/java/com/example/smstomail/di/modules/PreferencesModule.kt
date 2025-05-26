@@ -1,4 +1,4 @@
-package com.example.smstomail.di
+package com.example.smstomail.di.modules
 
 import com.example.smstomail.data.datasource.EncryptedPreferencesStringDataSource
 import com.example.smstomail.data.datasource.IStringDataSource

@@ -7,8 +7,9 @@ import androidx.work.WorkerParameters
 import com.example.smstomail.data.repository.ISettingsRepository
 import com.example.smstomail.domain.service.IMessageSender
 import com.example.smstomail.domain.service.INotificationSender
+import javax.inject.Inject
 
-class AppWorkerFactory(
+class AppWorkerFactory @Inject constructor(
     private val notificationSender: INotificationSender,
     private val mailSender: IMessageSender,
     private val settingsRepository: ISettingsRepository

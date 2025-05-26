@@ -11,6 +11,10 @@ import com.example.smstomail.R
 import kotlin.random.Random
 
 abstract class AbstractNotificationSender(protected val context: Context): INotificationSender {
+    companion object {
+        const val NOTIFICATION_CHANNEL_ID = "435"
+    }
+
     abstract val notificationBuilder: NotificationCompat.Builder
 
     override fun showNotification(message: String) {

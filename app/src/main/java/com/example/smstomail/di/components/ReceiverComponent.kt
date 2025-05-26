@@ -1,6 +1,9 @@
-package com.example.smstomail.di
+package com.example.smstomail.di.components
 
 import android.content.Context
+import com.example.smstomail.di.modules.DatabaseModule
+import com.example.smstomail.di.modules.PreferencesModule
+import com.example.smstomail.di.modules.RepositoriesModule
 import com.example.smstomail.domain.broadcastreceivers.SMSReceiver
 import dagger.BindsInstance
 import dagger.Component
@@ -11,9 +14,7 @@ import javax.inject.Singleton
     modules = [
         DatabaseModule::class,
         PreferencesModule::class,
-        FiltersRepositoryModule::class,
-        SettingsRepositoryModule::class,
-        RecipientsRepositoryModule::class
+        RepositoriesModule::class
     ]
 )
 interface ReceiverComponent {
