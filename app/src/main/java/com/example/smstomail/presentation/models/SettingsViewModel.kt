@@ -1,6 +1,5 @@
 package com.example.smstomail.presentation.models
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.smstomail.data.entity.ItemSnapshot
@@ -24,10 +23,6 @@ class SettingsViewModel @Inject constructor(
     private val settingsInteractor: ISettingsInteractor,
     private val recipientsInteractor: AbstractItemListBufferInteractor<Recipient>
 ) : ViewModel() {
-    companion object {
-        const val LOG_TAG = "SettingsViewModel"
-    }
-
     val settingsUiState: StateFlow<SettingsUiState> = combine (
         settingsInteractor.settingsStateFlow,
         recipientsInteractor.itemsStateFlow
@@ -52,7 +47,6 @@ class SettingsViewModel @Inject constructor(
 
     init {
         reset()
-        Log.v("init", "SettingsViewModel")
     }
 
     private fun launch(block: suspend () -> Unit) {
@@ -62,47 +56,38 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun save() {
-        Log.i(LOG_TAG, "save()")
         launch {
             recipientsInteractor.save()
             settingsInteractor.save()
         }
     }
     fun reset() {
-        Log.i(LOG_TAG, "reset()")
         launch {
             recipientsInteractor.reset()
             settingsInteractor.reset()
         }
     }
     fun updateLogin(value: String) {
-        Log.i(LOG_TAG, "updateLogin()")
         settingsInteractor.updateLogin(value)
     }
     fun updatePassword(value: String) {
-        Log.i(LOG_TAG, "updatePassword()")
         settingsInteractor.updatePassword(value)
     }
     fun updateHost(value: String) {
-        Log.i(LOG_TAG, "updateHost()")
         settingsInteractor.updateHost(value)
     }
     fun updatePort(value: String) {
-        Log.i(LOG_TAG, "updatePort()")
         settingsInteractor.updatePort(value)
     }
     fun toggleReceiverStatus() {
-        Log.i(LOG_TAG, "updateReceiverStatus()")
         launch {
             settingsInteractor.toggleReceiverStatus()
         }
     }
     fun createNewRecipient() {
-        Log.i(LOG_TAG, "createNewRecipient()")
         recipientsInteractor.createNewItem()
     }
     fun updateRecipient(recipientId: Int, recipientValue: String) {
-        Log.i(LOG_TAG, "createNewRecipient()")
         recipientsInteractor.updateItem(recipientId, Recipient(recipientId, recipientValue))
     }
     fun deleteRecipient(recipientId: Int) {

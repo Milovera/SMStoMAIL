@@ -1,6 +1,5 @@
 package com.example.smstomail.data.repository
 
-import android.util.Log
 import com.example.smstomail.data.database.dao.IRecipientDao
 import com.example.smstomail.data.entity.Recipient
 import javax.inject.Inject
@@ -10,9 +9,6 @@ import javax.inject.Singleton
 class RecipientsRepository @Inject constructor(
     private val recipientDao: IRecipientDao
 ): IRecipientsRepository {
-    init {
-        Log.v("init", "RecipientsRepository")
-    }
     override suspend fun getItems(): List<Recipient> {
         return recipientDao.getAllItems()
     }

@@ -1,6 +1,5 @@
 package com.example.smstomail.presentation.models
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.smstomail.data.entity.Filter
@@ -21,10 +20,6 @@ import kotlinx.coroutines.launch
 class FiltersViewModel @Inject constructor(
     private val filtersInteractor: FiltersInteractor
 ) : ViewModel() {
-    companion object {
-        const val LOG_TAG = "FiltersViewModel"
-    }
-
     val filtersUiState: StateFlow<FiltersUiState> = filtersInteractor.itemsStateFlow
         .filterNotNull()
         .map { snapshot: ItemSnapshot<List<Filter>>  ->
@@ -46,11 +41,9 @@ class FiltersViewModel @Inject constructor(
 
     init {
         reset()
-        Log.v("init", "FiltersViewModel")
     }
 
     fun reset() {
-        Log.i(LOG_TAG, "reset()")
         viewModelScope.launch(Dispatchers.IO) {
             filtersInteractor.reset()
         }

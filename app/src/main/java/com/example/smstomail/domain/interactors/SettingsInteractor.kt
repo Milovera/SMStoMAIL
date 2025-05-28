@@ -1,6 +1,5 @@
 package com.example.smstomail.domain.interactors
 
-import android.util.Log
 import com.example.smstomail.data.entity.ItemSnapshot
 import com.example.smstomail.data.entity.SettingsData
 import com.example.smstomail.data.repository.ISettingsRepository
@@ -94,9 +93,5 @@ class SettingsInteractor @Inject constructor(
         )
         save()
         emitUpdates()
-    }
-
-    init {
-        Log.v("init", "SettingsInteractor")
     }
 }

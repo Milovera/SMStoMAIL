@@ -29,10 +29,6 @@ class SMSReceiver: BroadcastReceiver() {
     @Inject
     lateinit var settingsRepository: ISettingsRepository
 
-    init {
-        Log.v("init", "SMSReceiver")
-    }
-
     private fun getFilters(): List<FilterStrategy> {
         return runBlocking {
             filtersRepository

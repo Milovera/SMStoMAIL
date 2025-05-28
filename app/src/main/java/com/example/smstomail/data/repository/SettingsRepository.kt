@@ -1,6 +1,5 @@
 package com.example.smstomail.data.repository
 
-import android.util.Log
 import com.example.smstomail.data.datasource.IStringDataSource
 import com.example.smstomail.data.entity.SettingsData
 import javax.inject.Inject
@@ -10,9 +9,6 @@ import javax.inject.Singleton
 class SettingsRepository @Inject constructor(
     private val dataSource: IStringDataSource
 ): ISettingsRepository {
-    init {
-        Log.v("init", "SettingsRepository")
-    }
     override fun read(): SettingsData? {
         return try {
             SettingsData(

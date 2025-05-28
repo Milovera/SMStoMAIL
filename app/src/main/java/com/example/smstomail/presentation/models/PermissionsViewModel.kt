@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
@@ -40,9 +39,5 @@ class PermissionsViewModel @Inject constructor(): ViewModel() {
         } else {
             NotificationManagerCompat.from(context).areNotificationsEnabled()
         }
-    }
-
-    init {
-        Log.v("init", "PermissionsViewModel")
     }
 }

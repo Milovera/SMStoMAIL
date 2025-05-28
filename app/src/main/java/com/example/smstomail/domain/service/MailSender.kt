@@ -1,6 +1,5 @@
 package com.example.smstomail.domain.service
 
-import android.util.Log
 import com.example.smstomail.data.entity.EmailAuthenticator
 import com.example.smstomail.data.entity.Message
 import com.example.smstomail.data.entity.Recipient
@@ -25,10 +24,6 @@ class MailSender @Inject constructor(): IMessageSender {
         const val SSL_PROP_NAME = "mail.smtp.ssl.enable"
         const val SOCKET_FACTORY_PROP_NAME = "mail.smtp.socketFactory.class"
         const val MESSAGE_CONTENT_TYPE = "text/plain; charset=utf-8"
-    }
-
-    init {
-        Log.v("init", "MailSender")
     }
 
     @Throws(MessagingException::class)

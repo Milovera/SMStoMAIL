@@ -1,6 +1,5 @@
 package com.example.smstomail.domain.interactors
 
-import android.util.Log
 import com.example.smstomail.data.entity.Recipient
 import com.example.smstomail.data.repository.IRecipientsRepository
 import javax.inject.Inject
@@ -23,9 +22,5 @@ class RecipientsInteractor @Inject constructor(
         if(items.isEmpty()) {
             createNewItem()
         }
-    }
-
-    init {
-        Log.v("init", "RecipientsInteractor")
     }
 }

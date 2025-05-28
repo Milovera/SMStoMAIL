@@ -1,22 +1,17 @@
 package com.example.smstomail.data.datasource
 
 import android.content.Context
-import android.util.Log
 import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import androidx.security.crypto.MasterKeys.AES256_GCM_SPEC
 import javax.inject.Inject
 
-class EncryptedPreferencesStringDataSource @Inject constructor(
+class EncryptedPreferences @Inject constructor(
     context: Context
 ): IStringDataSource {
     companion object {
         const val APPLICATION_PREFERENCES_FILENAME = "SMStoMailApplicationPreferences"
-    }
-
-    init {
-        Log.v("init", "EncryptedPreferencesStringDataSource")
     }
 
     private val masterKey = MasterKeys.getOrCreate(AES256_GCM_SPEC)
